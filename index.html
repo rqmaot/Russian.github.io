@@ -1,0 +1,661 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="Monarc.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russian Language Learning</title>
+    <style>
+        body {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0px;
+            background-image: url('tarkov.jpg'); /* Set background image */
+            background-size: cover;
+            background-position: center;
+            backdrop-filter: blur(5px); /* Add blur effect to the background */
+        }
+        #title {
+            margin-top: 50px; /* Move the title 50 pixels down */
+            color: white; /* Add white text color */
+        }
+        #container {
+            position: relative; /* Make the container position relative */
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background for the container */
+            border: 2px solid #333;
+            border-radius: 10px;
+        }
+        #word-container {
+            margin-top: 20px;
+        }
+        #word {
+            font-size: 24px;
+        }
+        #pronunciation {
+            font-style: italic;
+        }
+        #translation {
+            margin-top: 20px;
+        }
+        #input-container {
+            margin-top: 20px;
+        }
+        #input-box {
+            font-size: 18px;
+            width: 300px;
+            padding: 10px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            outline: none;
+        }
+        .correct-animation {
+            animation: correct-flash 1s 2;
+        }
+        @keyframes correct-flash {
+            0%, 100% {
+                background-color: transparent;
+                color: black;
+            }
+            50% {
+                background-color: limegreen; /* Bright green color */
+                color: white;
+            }
+        }
+        .shake {
+            animation: shake 0.5s;
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+        /* Style for the Monarc image */
+        #monarc-image {
+            position: absolute;
+            bottom: 10px; /* Adjust the distance from the bottom */
+            left: 10px; /* Adjust the distance from the left */
+            width: 100px; /* Adjust the image width */
+        }
+        /* Style for the "By: Monarc" text */
+        #author {
+            position: absolute;
+            bottom: 10px; /* Adjust the distance from the bottom */
+            left: 110px; /* Position to the right of the image */
+            font-size: 20px; /* Increase font size */
+            font-family: 'Georgia', serif; /* Choose a fancy font */
+            color: white; /* Dark text color */
+        }
+    </style>
+</head>
+<body>
+    <h1 id="title">Russian Language Learning</h1>
+    
+    <div id="container">
+        <div id="word-container">
+            <div id="word"></div>
+            <div id="pronunciation"></div>
+            <div id="translation"></div>
+        </div>
+
+        <div id="input-container">
+            <input type="text" id="input-box" placeholder="Type the word">
+        </div>
+    </div>
+    
+    <!-- Monarc image -->
+    <img src="monarc.png" alt="Monarc" id="monarc-image">
+    
+    <!-- "By: Monarc" text -->
+    <p id="author">By: Monarc</p>
+    
+<script>
+    const wordList = [
+  { word: 'привет', pronunciation: 'Privet', translation: 'Hello' },
+  { word: 'дом', pronunciation: 'Dom', translation: 'House' },
+  { word: 'мама', pronunciation: 'Mama', translation: 'Mom' },
+  { word: 'папа', pronunciation: 'Papa', translation: 'Dad' },
+  { word: 'человек', pronunciation: 'Chelovek', translation: 'Man' },
+  { word: 'женщина', pronunciation: 'Zhenshchina', translation: 'Woman' },
+  { word: 'ребенок', pronunciation: 'Rebenok', translation: 'Child' },
+  { word: 'семья', pronunciation: 'Sem`ya', translation: 'Family' },
+  { word: 'друг', pronunciation: 'Drug', translation: 'Friend' },
+  { word: 'работа', pronunciation: 'Rabota', translation: 'Job' },
+  { word: 'школа', pronunciation: 'Shkola', translation: 'School' },
+  { word: 'учитель', pronunciation: 'Uchitel', translation: 'Teacher' },
+  { word: 'страна', pronunciation: 'Strana', translation: 'Country' },
+  { word: 'город', pronunciation: 'Gorod', translation: 'City' },
+  { word: 'день', pronunciation: 'Den', translation: 'Day' },
+  { word: 'ночь', pronunciation: 'Noch', translation: 'Night' },
+  { word: 'время', pronunciation: 'Vremya', translation: 'Time' },
+  { word: 'год', pronunciation: 'God', translation: 'Year' },
+  { word: 'месяц', pronunciation: 'Mesyats', translation: 'Month' },
+  { word: 'неделя', pronunciation: 'Nedelya', translation: 'Week' },
+  { word: 'час', pronunciation: 'Chas', translation: 'Hour' },
+  { word: 'минута', pronunciation: 'Minuta', translation: 'Minute' },
+  { word: 'секунда', pronunciation: 'Sekunda', translation: 'Second' },
+  { word: 'книга', pronunciation: 'Kniga', translation: 'Book' },
+  { word: 'стол', pronunciation: 'Stol', translation: 'Table' },
+  { word: 'стул', pronunciation: 'Stul', translation: 'Chair' },
+  { word: 'окно', pronunciation: 'Okno', translation: 'Window' },
+  { word: 'дверь', pronunciation: 'Dver', translation: 'Door' },
+  { word: 'машина', pronunciation: 'Mashina', translation: 'Car' },
+  { word: 'автобус', pronunciation: 'Avtobus', translation: 'Bus' },
+  { word: 'самолет', pronunciation: 'Samolyot', translation: 'Airplane' },
+  { word: 'поезд', pronunciation: 'Poezd', translation: 'Train' },
+  { word: 'велосипед', pronunciation: 'Velosiped', translation: 'Bicycle' },
+  { word: 'магазин', pronunciation: 'Magazin', translation: 'Store' },
+  { word: 'ресторан', pronunciation: 'Restoran', translation: 'Restaurant' },
+  { word: 'банк', pronunciation: 'Bank', translation: 'Bank' },
+  { word: 'почта', pronunciation: 'Pochta', translation: 'Post Office' },
+  { word: 'парк', pronunciation: 'Park', translation: 'Park' },
+  { word: 'река', pronunciation: 'Reka', translation: 'River' },
+  { word: 'озеро', pronunciation: 'Ozero', translation: 'Lake' },
+  { word: 'море', pronunciation: 'More', translation: 'Sea' },
+  { word: 'гора', pronunciation: 'Gora', translation: 'Mountain' },
+  { word: 'лес', pronunciation: 'Les', translation: 'Forest' },
+  { word: 'здание', pronunciation: 'Zdanie', translation: 'Building' },
+  { word: 'квартира', pronunciation: 'Kvartira', translation: 'Apartment' },
+  { word: 'деньги', pronunciation: 'Den`gi', translation: 'Money' },
+  { word: 'цвет', pronunciation: 'Tsvet', translation: 'Color' },
+  { word: 'язык', pronunciation: 'Yazyk', translation: 'Language' },
+  { word: 'ключ', pronunciation: 'Klyuch', translation: 'Key' },
+  { word: 'солнце', pronunciation: 'Solntse', translation: 'Sun' },
+  { word: 'луна', pronunciation: 'Luna', translation: 'Moon' },
+  { word: 'звезда', pronunciation: 'Zvezda', translation: 'Star' },
+  { word: 'животное', pronunciation: 'Zhivotnoe', translation: 'Animal' },
+  { word: 'птица', pronunciation: 'Ptitsa', translation: 'Bird' },
+  { word: 'рыба', pronunciation: 'Ryba', translation: 'Fish' },
+  { word: 'цветок', pronunciation: 'Tsvetok', translation: 'Flower' },
+  { word: 'плод', pronunciation: 'Plod', translation: 'Fruit' },
+  { word: 'вода', pronunciation: 'Voda', translation: 'Water' },
+  { word: 'еда', pronunciation: 'Eda', translation: 'Food' },
+  { word: 'молоко', pronunciation: 'Moloko', translation: 'Milk' },
+  { word: 'чай', pronunciation: 'Chay', translation: 'Tea' },
+  { word: 'кофе', pronunciation: 'Kofe', translation: 'Coffee' },
+  { word: 'сахар', pronunciation: 'Sakhar', translation: 'Sugar' },
+  { word: 'соль', pronunciation: 'Sol', translation: 'Salt' },
+  { word: 'хлеб', pronunciation: 'Khleb', translation: 'Bread' },
+  { word: 'масло', pronunciation: 'Maslo', translation: 'Butter' },
+  { word: 'фрукт', pronunciation: 'Fruct', translation: 'Fruit' },
+  { word: 'овощ', pronunciation: 'Ovosch', translation: 'Vegetable' },
+  { word: 'яйцо', pronunciation: 'Yayts', translation: 'Egg' },
+  { word: 'мясо', pronunciation: 'Myaso', translation: 'Meat' },
+  { word: 'рис', pronunciation: 'Ris', translation: 'Rice' },
+  { word: 'суп', pronunciation: 'Sup', translation: 'Soup' },
+  { word: 'салат', pronunciation: 'Salat', translation: 'Salad' },
+  { word: 'пицца', pronunciation: 'Pizza', translation: 'Pizza' },
+  { word: 'паста', pronunciation: 'Pasta', translation: 'Pasta' },
+  { word: 'фрукты', pronunciation: 'Fructi', translation: 'Fruits' },
+  { word: 'овощи', pronunciation: 'Ovoschi', translation: 'Vegetables' },
+  { word: 'ягоды', pronunciation: 'Yagodi', translation: 'Berries' },
+  { word: 'холодильник', pronunciation: 'Kholodil`nik', translation: 'Refrigerator' },
+  { word: 'тарелка', pronunciation: 'Tarelka', translation: 'Plate' },
+  { word: 'ложка', pronunciation: 'Lozhka', translation: 'Spoon' },
+  { word: 'вилка', pronunciation: 'Vilka', translation: 'Fork' },
+  { word: 'нож', pronunciation: 'Nozh', translation: 'Knife' },
+  { word: 'чашка', pronunciation: 'Chashka', translation: 'Cup' },
+  { word: 'грязь', pronunciation: 'Gryaz`', translation: 'Dirt' },
+  { word: 'трава', pronunciation: 'Trava', translation: 'Grass' },
+  { word: 'цветок', pronunciation: 'Tsvetok', translation: 'Flower' },
+  { word: 'дерево', pronunciation: 'Derevo', translation: 'Tree' },
+  { word: 'скамейка', pronunciation: 'Skameika', translation: 'Bench' },
+  { word: 'песок', pronunciation: 'Pesok', translation: 'Sand' },
+  { word: 'звук', pronunciation: 'Zvuk', translation: 'Sound' },
+  { word: 'музыка', pronunciation: 'Muzyka', translation: 'Music' },
+  { word: 'пение', pronunciation: 'Penie', translation: 'Singing' },
+  { word: 'танец', pronunciation: 'Tanets', translation: 'Dance' },
+  { word: 'игра', pronunciation: 'Igra', translation: 'Game' },
+  { word: 'фильм', pronunciation: 'Film', translation: 'Movie' },
+  { word: 'книга', pronunciation: 'Kniga', translation: 'Book' },
+  { word: 'журнал', pronunciation: 'Zhurnal', translation: 'Magazine' },
+  { word: 'газета', pronunciation: 'Gazeta', translation: 'Newspaper' },
+  { word: 'радио', pronunciation: 'Radio', translation: 'Radio' },
+  { word: 'телевизор', pronunciation: 'Televizor', translation: 'Television' },
+  { word: 'компьютер', pronunciation: 'Kompyuter', translation: 'Computer' },
+  { word: 'интернет', pronunciation: 'Internet', translation: 'Internet' },
+  { word: 'телефон', pronunciation: 'Telefon', translation: 'Phone' },
+  { word: 'письмо', pronunciation: 'Pismo', translation: 'Letter' },
+  { word: 'почта', pronunciation: 'Pochta', translation: 'Post Office' },
+  { word: 'пакет', pronunciation: 'Paket', translation: 'Parcel' },
+  { word: 'счет', pronunciation: 'Schet', translation: 'Bill' },
+  { word: 'касса', pronunciation: 'Kassa', translation: 'Cash Register' },
+  { word: 'цена', pronunciation: 'Tsena', translation: 'Price' },
+  { word: 'скидка', pronunciation: 'Skidka', translation: 'Discount' },
+  { word: 'деньги', pronunciation: 'Den`gi', translation: 'Money' },
+  { word: 'карта', pronunciation: 'Karta', translation: 'Card' },
+  { word: 'банк', pronunciation: 'Bank', translation: 'Bank' },
+  { word: 'пол', pronunciation: 'Pol', translation: 'Floor' },
+  { word: 'лифт', pronunciation: 'Lift', translation: 'Elevator' },
+  { word: 'дверь', pronunciation: 'Dver`', translation: 'Door' },
+  { word: 'окно', pronunciation: 'Okno', translation: 'Window' },
+  { word: 'стена', pronunciation: 'Stena', translation: 'Wall' },
+  { word: 'потолок', pronunciation: 'Potolok', translation: 'Ceiling' },
+  { word: 'пол', pronunciation: 'Pol', translation: 'Floor' },
+  { word: 'крыша', pronunciation: 'Krysha', translation: 'Roof' },
+  { word: 'лестница', pronunciation: 'Lestnitsa', translation: 'Stairs' },
+  { word: 'гараж', pronunciation: 'Garazh', translation: 'Garage' },
+  { word: 'океан', pronunciation: 'Okean', translation: 'Ocean' },
+  { word: 'земля', pronunciation: 'Zemlya', translation: 'Earth' },
+  { word: 'солнце', pronunciation: 'Solntse', translation: 'Sun' },
+  { word: 'луна', pronunciation: 'Luna', translation: 'Moon' },
+  { word: 'планета', pronunciation: 'Planeta', translation: 'Planet' },
+  { word: 'звезда', pronunciation: 'Zvezda', translation: 'Star' },
+  { word: 'галактика', pronunciation: 'Galaktika', translation: 'Galaxy' },
+  { word: 'космос', pronunciation: 'Kosmos', translation: 'Space' },
+  { word: 'земля', pronunciation: 'Zemlya', translation: 'Earth' },
+  { word: 'город', pronunciation: 'Gorod', translation: 'City' },
+  { word: 'улица', pronunciation: 'Ulica', translation: 'Street' },
+  { word: 'дорога', pronunciation: 'Doroga', translation: 'Road' },
+  { word: 'площадь', pronunciation: 'Ploshchad`', translation: 'Square' },
+  { word: 'мост', pronunciation: 'Most', translation: 'Bridge' },
+  { word: 'тоннель', pronunciation: 'Tonnel`', translation: 'Tunnel' },
+  { word: 'аэропорт', pronunciation: 'Aeroport', translation: 'Airport' },
+  { word: 'вокзал', pronunciation: 'Vokzal', translation: 'Train Station' },
+  { word: 'автобус', pronunciation: 'Avtobus', translation: 'Bus' },
+  { word: 'остановка', pronunciation: 'Ostanovka', translation: 'Bus Stop' },
+  { word: 'парк', pronunciation: 'Park', translation: 'Park' },
+  { word: 'сад', pronunciation: 'Sad', translation: 'Garden' },
+  { word: 'лес', pronunciation: 'Les', translation: 'Forest' },
+  { word: 'река', pronunciation: 'Reka', translation: 'River' },
+  { word: 'озеро', pronunciation: 'Ozero', translation: 'Lake' },
+  { word: 'море', pronunciation: 'More', translation: 'Sea' },
+  { word: 'гора', pronunciation: 'Gora', translation: 'Mountain' },
+  { word: 'пустыня', pronunciation: 'Pustynya', translation: 'Desert' },
+  { word: 'остров', pronunciation: 'Ostrov', translation: 'Island' },
+  { word: 'пляж', pronunciation: 'Plyazh', translation: 'Beach' },
+  { word: 'зверь', pronunciation: 'Zver`', translation: 'Animal' },
+  { word: 'птица', pronunciation: 'Ptitsa', translation: 'Bird' },
+  { word: 'насекомое', pronunciation: 'Nasekomoje', translation: 'Insect' },
+  { word: 'рыба', pronunciation: 'Ryba', translation: 'Fish' },
+  { word: 'дерево', pronunciation: 'Derevo', translation: 'Tree' },
+  { word: 'цветок', pronunciation: 'Tsvetok', translation: 'Flower' },
+  { word: 'трава', pronunciation: 'Trava', translation: 'Grass' },
+  { word: 'камень', pronunciation: 'Kamen`', translation: 'Stone' },
+  { word: 'песок', pronunciation: 'Pesok', translation: 'Sand' },
+  { word: 'гора', pronunciation: 'Gora', translation: 'Mountain' },
+  { word: 'пещера', pronunciation: 'Peschera', translation: 'Cave' },
+  { word: 'река', pronunciation: 'Reka', translation: 'River' },
+  { word: 'озеро', pronunciation: 'Ozero', translation: 'Lake' },
+  { word: 'море', pronunciation: 'More', translation: 'Sea' },
+  { word: 'пляж', pronunciation: 'Plyazh', translation: 'Beach' },
+  { word: 'город', pronunciation: 'Gorod', translation: 'City' },
+  { word: 'дом', pronunciation: 'Dom', translation: 'House' },
+  { word: 'квартира', pronunciation: 'Kvartira', translation: 'Apartment' },
+  { word: 'комната', pronunciation: 'Komnata', translation: 'Room' },
+  { word: 'кухня', pronunciation: 'Kuhnya', translation: 'Kitchen' },
+  { word: 'ванная', pronunciation: 'Vannaya', translation: 'Bathroom' },
+  { word: 'туалет', pronunciation: 'Tualet', translation: 'Toilet' },
+  { word: 'спальня', pronunciation: 'Spal`nya', translation: 'Bedroom' },
+  { word: 'гостиная', pronunciation: 'Gostinaya', translation: 'Living Room' },
+  { word: 'балкон', pronunciation: 'Balkon', translation: 'Balcony' },
+  { word: 'дверь', pronunciation: 'Dver`', translation: 'Door' },
+  { word: 'окно', pronunciation: 'Okno', translation: 'Window' },
+  { word: 'стена', pronunciation: 'Stena', translation: 'Wall' },
+  { word: 'потолок', pronunciation: 'Potolok', translation: 'Ceiling' },
+  { word: 'пол', pronunciation: 'Pol', translation: 'Floor' },
+  { word: 'крыша', pronunciation: 'Krysha', translation: 'Roof' },
+  { word: 'лестница', pronunciation: 'Lestnitsa', translation: 'Stairs' },
+  { word: 'мебель', pronunciation: 'Mebel`', translation: 'Furniture' },
+  { word: 'кровать', pronunciation: 'Krovat`', translation: 'Bed' },
+  { word: 'стол', pronunciation: 'Stol', translation: 'Table' },
+  { word: 'стул', pronunciation: 'Stul', translation: 'Chair' },
+  { word: 'диван', pronunciation: 'Divan', translation: 'Sofa' },
+  { word: 'кресло', pronunciation: 'Kreslo', translation: 'Armchair' },
+  { word: 'комод', pronunciation: 'Komod', translation: 'Dresser' },
+  { word: 'шкаф', pronunciation: 'Shkaf', translation: 'Closet' },
+  { word: 'зеркало', pronunciation: 'Zerkalo', translation: 'Mirror' },
+  { word: 'полка', pronunciation: 'Polka', translation: 'Shelf' },
+  { word: 'книга', pronunciation: 'Kniga', translation: 'Book' },
+  { word: 'журнал', pronunciation: 'Zhurnal', translation: 'Magazine' },
+  { word: 'газета', pronunciation: 'Gazeta', translation: 'Newspaper' },
+  { word: 'телефон', pronunciation: 'Telefon', translation: 'Phone' },
+  { word: 'компьютер', pronunciation: 'Kompyuter', translation: 'Computer' },
+  { word: 'картина', pronunciation: 'Kartina', translation: 'Painting' },
+  { word: 'статуя', pronunciation: 'Statuya', translation: 'Statue' },
+  { word: 'скульптура', pronunciation: 'Skul`ptura', translation: 'Sculpture' },
+  { word: 'кафе', pronunciation: 'Kafe', translation: 'Cafe' },
+  { word: 'ресторан', pronunciation: 'Restoran', translation: 'Restaurant' },
+  { word: 'бар', pronunciation: 'Bar', translation: 'Bar' },
+  { word: 'магазин', pronunciation: 'Magazin', translation: 'Store' },
+  { word: 'аптека', pronunciation: 'Apteka', translation: 'Pharmacy' },
+  { word: 'больница', pronunciation: 'Bol`nitsa', translation: 'Hospital' },
+  { word: 'поликлиника', pronunciation: 'Poliklinika', translation: 'Clinic' },
+  { word: 'школа', pronunciation: 'Shkola', translation: 'School' },
+  { word: 'университет', pronunciation: 'Universitet', translation: 'University' },
+  { word: 'музей', pronunciation: 'Muzej', translation: 'Museum' },
+  { word: 'театр', pronunciation: 'Teatr', translation: 'Theater' },
+  { word: 'кино', pronunciation: 'Kino', translation: 'Cinema' },
+  { word: 'концерт', pronunciation: 'Kontsert', translation: 'Concert' },
+  { word: 'церковь', pronunciation: 'Tserkov`', translation: 'Church' },
+  { word: 'собор', pronunciation: 'Sobor', translation: 'Cathedral' },
+  { word: 'мечеть', pronunciation: 'Mechet`', translation: 'Mosque' },
+  { word: 'синагога', pronunciation: 'Sinagoga', translation: 'Synagogue' },
+  { word: 'храм', pronunciation: 'Hram', translation: 'Temple' },
+  { word: 'библиотека', pronunciation: 'Biblioteka', translation: 'Library' },
+  { word: 'парк', pronunciation: 'Park', translation: 'Park' },
+  { word: 'сад', pronunciation: 'Sad', translation: 'Garden' },
+  { word: 'зоопарк', pronunciation: 'Zoopark', translation: 'Zoo' },
+  { word: 'цирк', pronunciation: 'Tsirk', translation: 'Circus' },
+  { word: 'аквапарк', pronunciation: 'Akvapark', translation: 'Water Park' },
+  { word: 'бассейн', pronunciation: 'Bassejn', translation: 'Swimming Pool' },
+  { word: 'город', pronunciation: 'Gorod', translation: 'City' },
+  { word: 'улица', pronunciation: 'Ulica', translation: 'Street' },
+  { word: 'дом', pronunciation: 'Dom', translation: 'House' },
+  { word: 'квартира', pronunciation: 'Kvartira', translation: 'Apartment' },
+  { word: 'комната', pronunciation: 'Komnata', translation: 'Room' },
+  { word: 'кухня', pronunciation: 'Kuhnya', translation: 'Kitchen' },
+  { word: 'ванная', pronunciation: 'Vannaya', translation: 'Bathroom' },
+  { word: 'туалет', pronunciation: 'Tualet', translation: 'Toilet' },
+  { word: 'спальня', pronunciation: 'Spal`nya', translation: 'Bedroom' },
+  { word: 'гостиная', pronunciation: 'Gostinaya', translation: 'Living Room' },
+  { word: 'балкон', pronunciation: 'Balkon', translation: 'Balcony' },
+  { word: 'дверь', pronunciation: 'Dver`', translation: 'Door' },
+  { word: 'окно', pronunciation: 'Okno', translation: 'Window' },
+  { word: 'стена', pronunciation: 'Stena', translation: 'Wall' },
+  { word: 'потолок', pronunciation: 'Potolok', translation: 'Ceiling' },
+  { word: 'пол', pronunciation: 'Pol', translation: 'Floor' },
+  { word: 'крыша', pronunciation: 'Krysha', translation: 'Roof' },
+  { word: 'лестница', pronunciation: 'Lestnitsa', translation: 'Stairs' },
+  { word: 'мебель', pronunciation: 'Mebel`', translation: 'Furniture' },
+  { word: 'кровать', pronunciation: 'Krovat`', translation: 'Bed' },
+  { word: 'стол', pronunciation: 'Stol', translation: 'Table' },
+  { word: 'стул', pronunciation: 'Stul', translation: 'Chair' },
+  { word: 'диван', pronunciation: 'Divan', translation: 'Sofa' },
+  { word: 'кресло', pronunciation: 'Kreslo', translation: 'Armchair' },
+  { word: 'комод', pronunciation: 'Komod', translation: 'Dresser' },
+  { word: 'шкаф', pronunciation: 'Shkaf', translation: 'Closet' },
+  { word: 'зеркало', pronunciation: 'Zerkalo', translation: 'Mirror' },
+  { word: 'полка', pronunciation: 'Polka', translation: 'Shelf' },
+  { word: 'книга', pronunciation: 'Kniga', translation: 'Book' },
+  { word: 'журнал', pronunciation: 'Zhurnal', translation: 'Magazine' },
+  { word: 'газета', pronunciation: 'Gazeta', translation: 'Newspaper' },
+  { word: 'телефон', pronunciation: 'Telefon', translation: 'Phone' },
+  { word: 'компьютер', pronunciation: 'Kompyuter', translation: 'Computer' },
+  { word: 'картина', pronunciation: 'Kartina', translation: 'Painting' },
+  { word: 'статуя', pronunciation: 'Statuya', translation: 'Statue' },
+  { word: 'скульптура', pronunciation: 'Skul`ptura', translation: 'Sculpture' },
+  { word: 'кафе', pronunciation: 'Kafe', translation: 'Cafe' },
+  { word: 'ресторан', pronunciation: 'Restoran', translation: 'Restaurant' },
+  { word: 'бар', pronunciation: 'Bar', translation: 'Bar' },
+  { word: 'магазин', pronunciation: 'Magazin', translation: 'Store' },
+  { word: 'аптека', pronunciation: 'Apteka', translation: 'Pharmacy' },
+  { word: 'больница', pronunciation: 'Bol`nitsa', translation: 'Hospital' },
+  { word: 'поликлиника', pronunciation: 'Poliklinika', translation: 'Clinic' },
+  { word: 'школа', pronunciation: 'Shkola', translation: 'School' },
+  { word: 'университет', pronunciation: 'Universitet', translation: 'University' },
+  { word: 'музей', pronunciation: 'Muzej', translation: 'Museum' },
+  { word: 'театр', pronunciation: 'Teatr', translation: 'Theater' },
+  { word: 'кино', pronunciation: 'Kino', translation: 'Cinema' },
+  { word: 'концерт', pronunciation: 'Kontsert', translation: 'Concert' },
+  { word: 'церковь', pronunciation: 'Tserkov`', translation: 'Church' },
+  { word: 'собор', pronunciation: 'Sobor', translation: 'Cathedral' },
+  { word: 'мечеть', pronunciation: 'Mechet`', translation: 'Mosque' },
+  { word: 'синагога', pronunciation: 'Sinagoga', translation: 'Synagogue' },
+  { word: 'храм', pronunciation: 'Hram', translation: 'Temple' },
+  { word: 'библиотека', pronunciation: 'Biblioteka', translation: 'Library' },
+  { word: 'парк', pronunciation: 'Park', translation: 'Park' },
+  { word: 'сад', pronunciation: 'Sad', translation: 'Garden' },
+  { word: 'зоопарк', pronunciation: 'Zoopark', translation: 'Zoo' },
+  { word: 'цирк', pronunciation: 'Tsirk', translation: 'Circus' },
+  { word: 'аквапарк', pronunciation: 'Akvapark', translation: 'Water Park' },
+  { word: 'бассейн', pronunciation: 'Bassejn', translation: 'Swimming Pool' },
+  { word: 'город', pronunciation: 'Gorod', translation: 'City' },
+  { word: 'улица', pronunciation: 'Ulica', translation: 'Street' },
+  { word: 'дорога', pronunciation: 'Doroga', translation: 'Road' },
+  { word: 'площадь', pronunciation: 'Ploshchad`', translation: 'Square' },
+  { word: 'мост', pronunciation: 'Most', translation: 'Bridge' },
+  { word: 'тоннель', pronunciation: 'Tonnel`', translation: 'Tunnel' },
+  { word: 'аэропорт', pronunciation: 'Aeroport', translation: 'Airport' },
+  { word: 'вокзал', pronunciation: 'Vokzal', translation: 'Train Station' },
+  { word: 'автобус', pronunciation: 'Avtobus', translation: 'Bus' },
+  { word: 'остановка', pronunciation: 'Ostanovka', translation: 'Bus Stop' },
+  { word: 'парк', pronunciation: 'Park', translation: 'Park' },
+  { word: 'сад', pronunciation: 'Sad', translation: 'Garden' },
+  { word: 'лес', pronunciation: 'Les', translation: 'Forest' },
+  { word: 'река', pronunciation: 'Reka', translation: 'River' },
+  { word: 'озеро', pronunciation: 'Ozero', translation: 'Lake' },
+  { word: 'море', pronunciation: 'More', translation: 'Sea' },
+  { word: 'гора', pronunciation: 'Gora', translation: 'Mountain' },
+  { word: 'пустыня', pronunciation: 'Pustynya', translation: 'Desert' },
+  { word: 'остров', pronunciation: 'Ostrov', translation: 'Island' },
+  { word: 'пляж', pronunciation: 'Plyazh', translation: 'Beach' },
+  { word: 'зверь', pronunciation: 'Zver`', translation: 'Animal' },
+  { word: 'птица', pronunciation: 'Ptitsa', translation: 'Bird' },
+  { word: 'насекомое', pronunciation: 'Nasekomoje', translation: 'Insect' },
+  { word: 'рыба', pronunciation: 'Ryba', translation: 'Fish' },
+  { word: 'дерево', pronunciation: 'Derevo', translation: 'Tree' },
+  { word: 'цветок', pronunciation: 'Tsvetok', translation: 'Flower' },
+  { word: 'трава', pronunciation: 'Trava', translation: 'Grass' },
+  { word: 'камень', pronunciation: 'Kamen`', translation: 'Stone' },
+  { word: 'песок', pronunciation: 'Pesok', translation: 'Sand' },
+  { word: 'гора', pronunciation: 'Gora', translation: 'Mountain' },
+  { word: 'пещера', pronunciation: 'Peschera', translation: 'Cave' },
+  { word: 'река', pronunciation: 'Reka', translation: 'River' },
+  { word: 'озеро', pronunciation: 'Ozero', translation: 'Lake' },
+  { word: 'море', pronunciation: 'More', translation: 'Sea' },
+  { word: 'пляж', pronunciation: 'Plyazh', translation: 'Beach' },
+  { word: 'город', pronunciation: 'Gorod', translation: 'City' },
+  { word: 'дом', pronunciation: 'Dom', translation: 'House' },
+  { word: 'квартира', pronunciation: 'Kvartira', translation: 'Apartment' },
+  { word: 'комната', pronunciation: 'Komnata', translation: 'Room' },
+  { word: 'кухня', pronunciation: 'Kuhnya', translation: 'Kitchen' },
+  { word: 'ванная', pronunciation: 'Vannaya', translation: 'Bathroom' },
+  { word: 'туалет', pronunciation: 'Tualet', translation: 'Toilet' },
+  { word: 'спальня', pronunciation: 'Spal`nya', translation: 'Bedroom' },
+  { word: 'гостиная', pronunciation: 'Gostinaya', translation: 'Living Room' },
+  { word: 'балкон', pronunciation: 'Balkon', translation: 'Balcony' },
+  { word: 'дверь', pronunciation: 'Dver`', translation: 'Door' },
+  { word: 'окно', pronunciation: 'Okno', translation: 'Window' },
+  { word: 'стена', pronunciation: 'Stena', translation: 'Wall' },
+  { word: 'потолок', pronunciation: 'Potolok', translation: 'Ceiling' },
+  { word: 'пол', pronunciation: 'Pol', translation: 'Floor' },
+  { word: 'крыша', pronunciation: 'Krysha', translation: 'Roof' },
+  { word: 'лестница', pronunciation: 'Lestnitsa', translation: 'Stairs' },
+  { word: 'мебель', pronunciation: 'Mebel`', translation: 'Furniture' },
+  { word: 'кровать', pronunciation: 'Krovat`', translation: 'Bed' },
+  { word: 'стол', pronunciation: 'Stol', translation: 'Table' },
+  { word: 'стул', pronunciation: 'Stul', translation: 'Chair' },
+  { word: 'диван', pronunciation: 'Divan', translation: 'Sofa' },
+  { word: 'кресло', pronunciation: 'Kreslo', translation: 'Armchair' },
+  { word: 'комод', pronunciation: 'Komod', translation: 'Dresser' },
+  { word: 'шкаф', pronunciation: 'Shkaf', translation: 'Closet' },
+  { word: 'зеркало', pronunciation: 'Zerkalo', translation: 'Mirror' },
+  { word: 'полка', pronunciation: 'Polka', translation: 'Shelf' },
+  { word: 'книга', pronunciation: 'Kniga', translation: 'Book' },
+  { word: 'журнал', pronunciation: 'Zhurnal', translation: 'Magazine' },
+  { word: 'газета', pronunciation: 'Gazeta', translation: 'Newspaper' },
+  { word: 'телефон', pronunciation: 'Telefon', translation: 'Phone' },
+  { word: 'компьютер', pronunciation: 'Kompyuter', translation: 'Computer' },
+  { word: 'картина', pronunciation: 'Kartina', translation: 'Painting' },
+  { word: 'статуя', pronunciation: 'Statuya', translation: 'Statue' },
+  { word: 'скульптура', pronunciation: 'Skul`ptura', translation: 'Sculpture' },
+  { word: 'кафе', pronunciation: 'Kafe', translation: 'Cafe' },
+  { word: 'ресторан', pronunciation: 'Restoran', translation: 'Restaurant' },
+  { word: 'бар', pronunciation: 'Bar', translation: 'Bar' },
+  { word: 'магазин', pronunciation: 'Magazin', translation: 'Store' },
+  { word: 'аптека', pronunciation: 'Apteka', translation: 'Pharmacy' },
+  { word: 'больница', pronunciation: 'Bol`nitsa', translation: 'Hospital' },
+  { word: 'поликлиника', pronunciation: 'Poliklinika', translation: 'Clinic' },
+  { word: 'школа', pronunciation: 'Shkola', translation: 'School' },
+  { word: 'университет', pronunciation: 'Universitet', translation: 'University' },
+  { word: 'музей', pronunciation: 'Muzej', translation: 'Museum' },
+  { word: 'театр', pronunciation: 'Teatr', translation: 'Theater' },
+  { word: 'кино', pronunciation: 'Kino', translation: 'Cinema' },
+  { word: 'концерт', pronunciation: 'Kontsert', translation: 'Concert' },
+  { word: 'церковь', pronunciation: 'Tserkov`', translation: 'Church' },
+  { word: 'собор', pronunciation: 'Sobor', translation: 'Cathedral' },
+  { word: 'мечеть', pronunciation: 'Mechet`', translation: 'Mosque' },
+  { word: 'синагога', pronunciation: 'Sinagoga', translation: 'Synagogue' },
+  { word: 'храм', pronunciation: 'Hram', translation: 'Temple' },
+  { word: 'библиотека', pronunciation: 'Biblioteka', translation: 'Library' },
+  { word: 'парк', pronunciation: 'Park', translation: 'Park' },
+  { word: 'сад', pronunciation: 'Sad', translation: 'Garden' },
+  { word: 'зоопарк', pronunciation: 'Zoopark', translation: 'Zoo' },
+  { word: 'цирк', pronunciation: 'Tsirk', translation: 'Circus' },
+  { word: 'аквапарк', pronunciation: 'Akvapark', translation: 'Water Park' },
+  { word: 'бассейн', pronunciation: 'Bassejn', translation: 'Swimming Pool' },
+  { word: 'город', pronunciation: 'Gorod', translation: 'City' },
+  { word: 'улица', pronunciation: 'Ulica', translation: 'Street' },
+  { word: 'дорога', pronunciation: 'Doroga', translation: 'Road' },
+  { word: 'площадь', pronunciation: 'Ploshchad`', translation: 'Square' },
+  { word: 'мост', pronunciation: 'Most', translation: 'Bridge' },
+  { word: 'тоннель', pronunciation: 'Tonnel`', translation: 'Tunnel' },
+  { word: 'аэропорт', pronunciation: 'Aeroport', translation: 'Airport' },
+  { word: 'вокзал', pronunciation: 'Vokzal', translation: 'Train Station' },
+  { word: 'автобус', pronunciation: 'Avtobus', translation: 'Bus' },
+  { word: 'остановка', pronunciation: 'Ostanovka', translation: 'Bus Stop' },
+  { word: 'парк', pronunciation: 'Park', translation: 'Park' },
+  { word: 'сад', pronunciation: 'Sad', translation: 'Garden' },
+  { word: 'лес', pronunciation: 'Les', translation: 'Forest' },
+  { word: 'река', pronunciation: 'Reka', translation: 'River' },
+  { word: 'озеро', pronunciation: 'Ozero', translation: 'Lake' },
+  { word: 'море', pronunciation: 'More', translation: 'Sea' },
+  { word: 'гора', pronunciation: 'Gora', translation: 'Mountain' },
+  { word: 'пустыня', pronunciation: 'Pustynya', translation: 'Desert' },
+  { word: 'остров', pronunciation: 'Ostrov', translation: 'Island' },
+  { word: 'пляж', pronunciation: 'Plyazh', translation: 'Beach' },
+  { word: 'зверь', pronunciation: 'Zver`', translation: 'Animal' },
+  { word: 'птица', pronunciation: 'Ptitsa', translation: 'Bird' },
+  { word: 'насекомое', pronunciation: 'Nasekomoje', translation: 'Insect' },
+  { word: 'рыба', pronunciation: 'Ryba', translation: 'Fish' },
+  { word: 'дерево', pronunciation: 'Derevo', translation: 'Tree' },
+  { word: 'цветок', pronunciation: 'Tsvetok', translation: 'Flower' },
+  { word: 'трава', pronunciation: 'Trava', translation: 'Grass' },
+  { word: 'камень', pronunciation: 'Kamen`', translation: 'Stone' },
+  { word: 'песок', pronunciation: 'Pesok', translation: 'Sand' },
+  { word: 'гора', pronunciation: 'Gora', translation: 'Mountain' },
+  { word: 'пещера', pronunciation: 'Peschera', translation: 'Cave' },
+  { word: 'река', pronunciation: 'Reka', translation: 'River' },
+  { word: 'озеро', pronunciation: 'Ozero', translation: 'Lake' },
+  { word: 'море', pronunciation: 'More', translation: 'Sea' },
+  { word: 'пляж', pronunciation: 'Plyazh', translation: 'Beach' },
+  { word: 'город', pronunciation: 'Gorod', translation: 'City' },
+  { word: 'дом', pronunciation: 'Dom', translation: 'House' },
+  { word: 'квартира', pronunciation: 'Kvartira', translation: 'Apartment' },
+  { word: 'комната', pronunciation: 'Komnata', translation: 'Room' },
+  { word: 'кухня', pronunciation: 'Kuhnya', translation: 'Kitchen' },
+  { word: 'ванная', pronunciation: 'Vannaya', translation: 'Bathroom' },
+  { word: 'туалет', pronunciation: 'Tualet', translation: 'Toilet' },
+  { word: 'спальня', pronunciation: 'Spal`nya', translation: 'Bedroom' },
+  { word: 'гостиная', pronunciation: 'Gostinaya', translation: 'Living Room' },
+  { word: 'балкон', pronunciation: 'Balkon', translation: 'Balcony' },
+  { word: 'дверь', pronunciation: 'Dver`', translation: 'Door' },
+  { word: 'окно', pronunciation: 'Okno', translation: 'Window' },
+  { word: 'стена', pronunciation: 'Stena', translation: 'Wall' },
+  { word: 'потолок', pronunciation: 'Potolok', translation: 'Ceiling' },
+  { word: 'пол', pronunciation: 'Pol', translation: 'Floor' },
+  { word: 'крыша', pronunciation: 'Krysha', translation: 'Roof' },
+  { word: 'лестница', pronunciation: 'Lestnitsa', translation: 'Stairs' },
+  { word: 'мебель', pronunciation: 'Mebel`', translation: 'Furniture' },
+  { word: 'кровать', pronunciation: 'Krovat`', translation: 'Bed' },
+  { word: 'стол', pronunciation: 'Stol', translation: 'Table' },
+  { word: 'стул', pronunciation: 'Stul', translation: 'Chair' },
+  { word: 'диван', pronunciation: 'Divan', translation: 'Sofa' },
+  { word: 'кресло', pronunciation: 'Kreslo', translation: 'Armchair' },
+  { word: 'комод', pronunciation: 'Komod', translation: 'Dresser' },
+  { word: 'шкаф', pronunciation: 'Shkaf', translation: 'Closet' },
+  { word: 'зеркало', pronunciation: 'Zerkalo', translation: 'Mirror' },
+  { word: 'полка', pronunciation: 'Polka', translation: 'Shelf' },
+  { word: 'книга', pronunciation: 'Kniga', translation: 'Book' },
+  { word: 'журнал', pronunciation: 'Zhurnal', translation: 'Magazine' },
+  { word: 'газета', pronunciation: 'Gazeta', translation: 'Newspaper' },
+  { word: 'телефон', pronunciation: 'Telefon', translation: 'Phone' },
+  { word: 'компьютер', pronunciation: 'Kompyuter', translation: 'Computer' },
+  { word: 'картина', pronunciation: 'Kartina', translation: 'Painting' },
+  { word: 'статуя', pronunciation: 'Statuya', translation: 'Statue' },
+  { word: 'скульптура', pronunciation: 'Skul`ptura', translation: 'Sculpture' },
+  { word: 'кафе', pronunciation: 'Kafe', translation: 'Cafe' },
+  { word: 'ресторан', pronunciation: 'Restoran', translation: 'Restaurant' },
+  { word: 'бар', pronunciation: 'Bar', translation: 'Bar' },
+  { word: 'магазин', pronunciation: 'Magazin', translation: 'Store' },
+  { word: 'аптека', pronunciation: 'Apteka', translation: 'Pharmacy' },
+  { word: 'больница', pronunciation: 'Bol`nitsa', translation: 'Hospital' },
+  { word: 'поликлиника', pronunciation: 'Poliklinika', translation: 'Clinic' },
+  { word: 'школа', pronunciation: 'Shkola', translation: 'School' },
+  { word: 'университет', pronunciation: 'Universitet', translation: 'University' },
+  { word: 'музей', pronunciation: 'Muzej', translation: 'Museum' },
+  { word: 'театр', pronunciation: 'Teatr', translation: 'Theater' },
+  { word: 'кино', pronunciation: 'Kino', translation: 'Cinema' },
+  { word: 'концерт', pronunciation: 'Kontsert', translation: 'Concert' },
+  { word: 'церковь', pronunciation: 'Tserkov`', translation: 'Church' },
+  { word: 'собор', pronunciation: 'Sobor', translation: 'Cathedral' },
+  { word: 'мечеть', pronunciation: 'Mechet`', translation: 'Mosque' },
+  { word: 'синагога', pronunciation: 'Sinagoga', translation: 'Synagogue' },
+  { word: 'храм', pronunciation: 'Hram', translation: 'Temple' },
+  { word: 'библиотека', pronunciation: 'Biblioteka', translation: 'Library' },
+        // Add more words here as needed
+    ];
+
+    let currentWordIndex = -1;
+    let currentWordChars = [];
+    let wordCompleted = false;
+
+    function chooseRandomWord() {
+        return wordList[Math.floor(Math.random() * wordList.length)];
+    }
+
+    function displayRandomWord() {
+        const randomWordObj = chooseRandomWord();
+        const randomWord = randomWordObj.word.toLowerCase();
+        document.getElementById('word').textContent = randomWordObj.word;
+        document.getElementById('pronunciation').textContent = `Pronunciation: ${randomWordObj.pronunciation}`;
+        document.getElementById('translation').textContent = `Translation: ${randomWordObj.translation}`;
+        currentWordChars = randomWord.split('');
+        wordCompleted = false;
+        return randomWord;
+    }
+
+    function init() {
+        currentWordIndex = -1;
+        displayRandomWord();
+    }
+
+    init();
+
+    const inputBox = document.getElementById('input-box');
+
+    inputBox.addEventListener('keydown', function (event) {
+        let userInput = this.value.trim().toLowerCase();
+        const currentWord = currentWordChars.join('').toLowerCase();
+
+        if (event.key === 'Backspace') {
+            if (wordCompleted) {
+                event.preventDefault(); // Prevent backspace when the word is completed
+                userInput = '';
+            }
+            return;
+        }
+
+        if (!currentWord.startsWith(userInput + event.key.toLowerCase())) {
+            event.preventDefault(); // Prevent input of incorrect character
+            this.classList.add('shake'); // Apply the shake animation
+            setTimeout(() => {
+                this.classList.remove('shake'); // Remove the shake animation
+            }, 500);
+        }
+
+        if (userInput + event.key.toLowerCase() === currentWord) {
+            this.classList.add('correct-animation'); // Apply the correct animation to the input box
+            setTimeout(() => {
+                this.classList.remove('correct-animation'); // Remove the animation
+                wordCompleted = true;
+                currentWordIndex++;
+                if (currentWordIndex >= wordList.length) {
+                    currentWordIndex = 0;
+                }
+                displayRandomWord();
+                this.value = '';
+            }, 1000); // Wait for 2 seconds before moving to the next word
+        }
+    });
+</script>
+</body>
+</html>
